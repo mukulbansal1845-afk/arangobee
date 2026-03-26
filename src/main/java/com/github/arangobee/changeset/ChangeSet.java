@@ -7,9 +7,10 @@ import java.lang.annotation.Target;
 
 /**
  * Set of changes to be added to the DB. Many changesets are included in one changelog.
+ *
  * @author lstolowski
- * @since 27/07/2014
  * @see ChangeLog
+ * @since 27/07/2014
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -18,6 +19,7 @@ public @interface ChangeSet {
     /**
      * Author of the changeset.
      * Obligatory
+     *
      * @return author
      */
     public String author(); // must be set
@@ -25,6 +27,7 @@ public @interface ChangeSet {
     /**
      * Unique ID of the changeset.
      * Obligatory
+     *
      * @return unique id
      */
     public String id(); // must be set
@@ -32,6 +35,7 @@ public @interface ChangeSet {
     /**
      * Sequence that provide correct order for changesets. Sorted alphabetically, ascending.
      * Obligatory.
+     *
      * @return ordering
      */
     public String order(); // must be set
@@ -39,6 +43,7 @@ public @interface ChangeSet {
     /**
      * Executes the change set on every arangobee's execution, even if it has been run before.
      * Optional (default is false)
+     *
      * @return should run always?
      */
     public boolean runAlways() default false;

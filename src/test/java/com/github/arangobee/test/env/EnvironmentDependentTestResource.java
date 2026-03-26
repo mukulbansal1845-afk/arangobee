@@ -1,15 +1,14 @@
 package com.github.arangobee.test.env;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-
 import com.github.arangobee.changeset.ChangeLog;
 import com.github.arangobee.changeset.ChangeSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
-@ChangeLog(order="3")
+@ChangeLog(order = "3")
 public class EnvironmentDependentTestResource {
 
     @Autowired

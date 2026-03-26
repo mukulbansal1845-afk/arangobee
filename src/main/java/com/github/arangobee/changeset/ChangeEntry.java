@@ -1,22 +1,22 @@
 package com.github.arangobee.changeset;
 
-import java.util.Date;
-
 import com.arangodb.entity.BaseDocument;
 
+import java.util.Date;
+
 /**
- * Entry in the changes collection log {@link com.github.arangobee.Arangobee#DEFAULT_CHANGELOG_COLLECTION_NAME}
+ * Entry in the changes collection log
  * Type: entity class.
  *
  * @author lstolowski
  * @since 27/07/2014
  */
 public class ChangeEntry {
-    public static final String KEY_CHANGEID="changeId";
-    public static final String KEY_AUTHOR="author";
-    public static final String KEY_TIMESTAMP="timestamp";
-    public static final String KEY_CHANGELOGCLASS="changeLogClass";
-    public static final String KEY_CHANGESETMETHOD="changeSetMethod";
+    public static final String KEY_CHANGEID = "changeId";
+    public static final String KEY_AUTHOR = "author";
+    public static final String KEY_TIMESTAMP = "timestamp";
+    public static final String KEY_CHANGELOGCLASS = "changeLogClass";
+    public static final String KEY_CHANGESETMETHOD = "changeSetMethod";
 
     private final String changeId;
     private final String author;
@@ -25,15 +25,15 @@ public class ChangeEntry {
     private final String changeSetMethodName;
 
     public ChangeEntry(String changeId, String author, Date timestamp, String changeLogClass, String changeSetMethodName) {
-        this.changeId=changeId;
-        this.author=author;
-        this.timestamp=new Date(timestamp.getTime());
-        this.changeLogClass=changeLogClass;
-        this.changeSetMethodName=changeSetMethodName;
+        this.changeId = changeId;
+        this.author = author;
+        this.timestamp = new Date(timestamp.getTime());
+        this.changeLogClass = changeLogClass;
+        this.changeSetMethodName = changeSetMethodName;
     }
 
     public BaseDocument buildFullDBObject() {
-        BaseDocument entry=new BaseDocument();
+        BaseDocument entry = new BaseDocument();
 
         entry.addAttribute(KEY_CHANGEID, this.changeId);
         entry.addAttribute(KEY_AUTHOR, this.author);
@@ -47,7 +47,7 @@ public class ChangeEntry {
     @Override
     public String toString() {
         return "[ChangeSet: id=" + this.changeId + ", author=" + this.author + ", changeLogClass=" + this.changeLogClass + ", changeSetMethod="
-                + this.changeSetMethodName + "]";
+            + this.changeSetMethodName + "]";
     }
 
     public String getChangeId() {

@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
  */
 @ExtendWith(MockitoExtension.class)
 public class ArangobeeProfileTest extends AbstractArangobeeTest {
-    public static final int CHANGELOG_COUNT=6;
+    public static final int CHANGELOG_COUNT = 6;
 
     @BeforeEach
     @Override

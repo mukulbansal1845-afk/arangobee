@@ -22,11 +22,11 @@ public class ChangeServiceTest {
     @Test
     public void shouldFindChangeLogClasses() {
         // given
-        String scanPackage=AnrangobeeTestResource.class.getPackage().getName();
-        ChangeService service=new ChangeService(scanPackage);
+        String scanPackage = AnrangobeeTestResource.class.getPackage().getName();
+        ChangeService service = new ChangeService(scanPackage);
 
         // when
-        List<Class<?>> foundClasses=service.fetchChangeLogs();
+        List<Class<?>> foundClasses = service.fetchChangeLogs();
 
         // then
         assertThat(foundClasses).isNotNull();
@@ -36,11 +36,11 @@ public class ChangeServiceTest {
     @Test
     public void shouldFindChangeSetMethods() throws ArangobeeChangeSetException {
         // given
-        String scanPackage=AnrangobeeTestResource.class.getPackage().getName();
-        ChangeService service=new ChangeService(scanPackage);
+        String scanPackage = AnrangobeeTestResource.class.getPackage().getName();
+        ChangeService service = new ChangeService(scanPackage);
 
         // when
-        List<Method> foundMethods=service.fetchChangeSets(AnrangobeeTestResource.class);
+        List<Method> foundMethods = service.fetchChangeSets(AnrangobeeTestResource.class);
 
         // then
         assertThat(foundMethods).isNotNull();
@@ -50,11 +50,11 @@ public class ChangeServiceTest {
     @Test
     public void shouldFindAnotherChangeSetMethods() throws ArangobeeChangeSetException {
         // given
-        String scanPackage=AnotherArangobeeTestResource.class.getPackage().getName();
-        ChangeService service=new ChangeService(scanPackage);
+        String scanPackage = AnotherArangobeeTestResource.class.getPackage().getName();
+        ChangeService service = new ChangeService(scanPackage);
 
         // when
-        List<Method> foundMethods=service.fetchChangeSets(AnotherArangobeeTestResource.class);
+        List<Method> foundMethods = service.fetchChangeSets(AnotherArangobeeTestResource.class);
 
         // then
         assertThat(foundMethods).isNotNull();
@@ -64,11 +64,11 @@ public class ChangeServiceTest {
     @Test
     public void shouldFindIsRunAlwaysMethod() throws ArangobeeChangeSetException {
         // given
-        String scanPackage=AnrangobeeTestResource.class.getPackage().getName();
-        ChangeService service=new ChangeService(scanPackage);
+        String scanPackage = AnrangobeeTestResource.class.getPackage().getName();
+        ChangeService service = new ChangeService(scanPackage);
 
         // when
-        List<Method> foundMethods=service.fetchChangeSets(AnotherArangobeeTestResource.class);
+        List<Method> foundMethods = service.fetchChangeSets(AnotherArangobeeTestResource.class);
 
         // then
         for (Method foundMethod : foundMethods) {
@@ -83,13 +83,13 @@ public class ChangeServiceTest {
     @Test
     public void shouldCreateEntry() throws ArangobeeChangeSetException {
         // given
-        String scanPackage=AnrangobeeTestResource.class.getPackage().getName();
-        ChangeService service=new ChangeService(scanPackage);
-        List<Method> foundMethods=service.fetchChangeSets(AnrangobeeTestResource.class);
+        String scanPackage = AnrangobeeTestResource.class.getPackage().getName();
+        ChangeService service = new ChangeService(scanPackage);
+        List<Method> foundMethods = service.fetchChangeSets(AnrangobeeTestResource.class);
 
         for (Method foundMethod : foundMethods) {
             // when
-            ChangeEntry entry=service.createChangeEntry(foundMethod);
+            ChangeEntry entry = service.createChangeEntry(foundMethod);
 
             // then
             assertThat(entry.getAuthor()).isEqualTo("testuser");

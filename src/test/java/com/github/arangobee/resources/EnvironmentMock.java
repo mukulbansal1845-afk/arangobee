@@ -6,6 +6,7 @@ import org.springframework.core.env.Profiles;
 
 /**
  * Mock for Spring environment
+ *
  * @author lstolowski
  * @since 2014-09-19
  */
@@ -14,7 +15,7 @@ public class EnvironmentMock implements Environment {
     private String[] activeProfiles;
 
     public EnvironmentMock(String... activeProfiles) {
-        this.activeProfiles=activeProfiles;
+        this.activeProfiles = activeProfiles;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class EnvironmentMock implements Environment {
     public boolean acceptsProfiles(String... strings) {
         return false;
     }
-    
+
     @Override
     public boolean acceptsProfiles(Profiles profiles) {
         return false;

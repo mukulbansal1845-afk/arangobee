@@ -17,11 +17,11 @@ public class LockDao {
 
     //  private static final int INDEX_SORT_ASC = 1;
 
-    private static final String LOCK_ENTRY_KEY_VAL="LOCK";
+    private static final String LOCK_ENTRY_KEY_VAL = "LOCK";
     private String lockCollectionName;
 
     public LockDao(String lockCollectionName) {
-        this.lockCollectionName=lockCollectionName;
+        this.lockCollectionName = lockCollectionName;
     }
 
     public void intitializeLock(ArangoDatabase arangoDatabase) {
@@ -43,7 +43,7 @@ public class LockDao {
 
     public String acquireLock(ArangoDatabase arangoDatabase) {
 
-        BaseDocument insertObj=new BaseDocument();
+        BaseDocument insertObj = new BaseDocument();
         insertObj.setKey(LOCK_ENTRY_KEY_VAL);
         //	  insertObj.addAttribute(KEY_PROP_NAME, LOCK_ENTRY_KEY_VAL);
         insertObj.addAttribute("status", "LOCK_HELD");
@@ -73,7 +73,7 @@ public class LockDao {
     }
 
     public void setLockCollectionName(String lockCollectionName) {
-        this.lockCollectionName=lockCollectionName;
+        this.lockCollectionName = lockCollectionName;
     }
 
 }

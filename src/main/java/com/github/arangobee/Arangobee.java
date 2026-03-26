@@ -1,17 +1,5 @@
 package com.github.arangobee;
 
-import static org.springframework.util.StringUtils.hasText;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.core.env.Environment;
-
 import com.arangodb.ArangoDatabase;
 import com.arangodb.springframework.core.template.ArangoTemplate;
 import com.github.arangobee.changeset.ChangeEntry;
@@ -21,6 +9,17 @@ import com.github.arangobee.exception.ArangobeeConfigurationException;
 import com.github.arangobee.exception.ArangobeeConnectionException;
 import com.github.arangobee.exception.ArangobeeException;
 import com.github.arangobee.utils.ChangeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.core.env.Environment;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
+
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * Arangobee runner
@@ -29,41 +28,36 @@ import com.github.arangobee.utils.ChangeService;
  * @since 26/07/2014
  */
 public class Arangobee implements InitializingBean {
-    private static final Logger logger=LoggerFactory.getLogger(Arangobee.class);
+    private static final Logger logger = LoggerFactory.getLogger(Arangobee.class);
 
-    private static final String DEFAULT_CHANGELOG_COLLECTION_NAME="dbchangelog";
-    private static final String DEFAULT_LOCK_COLLECTION_NAME="arangolock";
-    private static final boolean DEFAULT_WAIT_FOR_LOCK=false;
-    private static final long DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME=5L;
-    private static final long DEFAULT_CHANGE_LOG_LOCK_POLL_RATE=10L;
-    private static final boolean DEFAULT_THROW_EXCEPTION_IF_CANNOT_OBTAIN_LOCK=false;
-
+    private static final String DEFAULT_CHANGELOG_COLLECTION_NAME = "dbchangelog";
+    private static final String DEFAULT_LOCK_COLLECTION_NAME = "arangolock";
+    private static final boolean DEFAULT_WAIT_FOR_LOCK = false;
+    private static final long DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME = 5L;
+    private static final long DEFAULT_CHANGE_LOG_LOCK_POLL_RATE = 10L;
+    private static final boolean DEFAULT_THROW_EXCEPTION_IF_CANNOT_OBTAIN_LOCK = false;
+    private final ArangoDatabase arangoDatabase;
+    private final AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private final int autowireMode;
     private ChangeEntryDao dao;
-
-//    private boolean enabled=true;
+    //    private boolean enabled=true;
     private String changeLogsScanPackage;
     private Environment springEnvironment;
-
-    private final ArangoDatabase arangoDatabase;
-
-    private final AutowireCapableBeanFactory autowireCapableBeanFactory;
-
-    private final int autowireMode;
 
     public Arangobee(ArangoDatabase arangoDatabase, AutowireCapableBeanFactory autowireCapableBeanFactory) {
         this(arangoDatabase, autowireCapableBeanFactory, AutowireCapableBeanFactory.AUTOWIRE_NO);
     }
 
     public Arangobee(ArangoDatabase arangoDatabase, AutowireCapableBeanFactory autowireCapableBeanFactory, int autowireMode) {
-        this.arangoDatabase=arangoDatabase;
-        this.autowireCapableBeanFactory=autowireCapableBeanFactory;
-        this.autowireMode=autowireMode;
-        this.dao=new ChangeEntryDao(DEFAULT_CHANGELOG_COLLECTION_NAME, DEFAULT_LOCK_COLLECTION_NAME, DEFAULT_WAIT_FOR_LOCK, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME,
-                DEFAULT_CHANGE_LOG_LOCK_POLL_RATE, DEFAULT_THROW_EXCEPTION_IF_CANNOT_OBTAIN_LOCK);
+        this.arangoDatabase = arangoDatabase;
+        this.autowireCapableBeanFactory = autowireCapableBeanFactory;
+        this.autowireMode = autowireMode;
+        this.dao = new ChangeEntryDao(DEFAULT_CHANGELOG_COLLECTION_NAME, DEFAULT_LOCK_COLLECTION_NAME, DEFAULT_WAIT_FOR_LOCK, DEFAULT_CHANGE_LOG_LOCK_WAIT_TIME,
+            DEFAULT_CHANGE_LOG_LOCK_POLL_RATE, DEFAULT_THROW_EXCEPTION_IF_CANNOT_OBTAIN_LOCK);
     }
 
     public Arangobee dao(ChangeEntryDao dao) {
-        this.dao=dao;
+        this.dao = dao;
         return this;
     }
 
@@ -92,7 +86,7 @@ public class Arangobee implements InitializingBean {
 
         dao.connectDb(this.arangoDatabase);
 
-        String lock=dao.acquireProcessLock();
+        String lock = dao.acquireProcessLock();
         if (lock == null) {
             throw new ArangobeeException("Arangobee did not acquire process lock. Exiting.");
         }
@@ -111,19 +105,19 @@ public class Arangobee implements InitializingBean {
 
     private void executeMigration() throws ArangobeeConnectionException, ArangobeeException {
 
-        ChangeService service=new ChangeService(changeLogsScanPackage, springEnvironment);
+        ChangeService service = new ChangeService(changeLogsScanPackage, springEnvironment);
 
         for (Class<?> changelogClass : service.fetchChangeLogs()) {
 
-            Object changelogInstance=null;
+            Object changelogInstance = null;
             try {
-                changelogInstance=changelogClass.getConstructor().newInstance();
-                if(autowireCapableBeanFactory!=null)
+                changelogInstance = changelogClass.getConstructor().newInstance();
+                if (autowireCapableBeanFactory != null)
                     autowireCapableBeanFactory.autowireBeanProperties(changelogInstance, autowireMode, true);
-                List<Method> changesetMethods=service.fetchChangeSets(changelogInstance.getClass());
+                List<Method> changesetMethods = service.fetchChangeSets(changelogInstance.getClass());
 
                 for (Method changesetMethod : changesetMethods) {
-                    ChangeEntry changeEntry=service.createChangeEntry(changesetMethod);
+                    ChangeEntry changeEntry = service.createChangeEntry(changesetMethod);
 
                     try {
                         if (dao.isNewChange(changeEntry)) {
@@ -145,7 +139,7 @@ public class Arangobee implements InitializingBean {
             } catch (IllegalAccessException e) {
                 throw new ArangobeeException(e.getMessage(), e);
             } catch (InvocationTargetException e) {
-                Throwable targetException=e.getTargetException();
+                Throwable targetException = e.getTargetException();
                 throw new ArangobeeException(targetException.getMessage(), e);
             } catch (InstantiationException e) {
                 throw new ArangobeeException(e.getMessage(), e);
@@ -155,9 +149,9 @@ public class Arangobee implements InitializingBean {
     }
 
     private Object executeChangeSetMethod(Method changeSetMethod, Object changeLogInstance, ArangoDatabase arangoDatabase)
-            throws IllegalAccessException, InvocationTargetException, ArangobeeChangeSetException {
+        throws IllegalAccessException, InvocationTargetException, ArangobeeChangeSetException {
         if (changeSetMethod.getParameterTypes().length == 2 && changeSetMethod.getParameterTypes()[0].equals(ArangoTemplate.class)
-                && changeSetMethod.getParameterTypes()[1].equals(Environment.class)) {
+            && changeSetMethod.getParameterTypes()[1].equals(Environment.class)) {
             logger.debug("method with ArangoTemplate and environment arguments");
 
             return changeSetMethod.invoke(changeLogInstance, arangoDatabase, springEnvironment);
@@ -171,7 +165,7 @@ public class Arangobee implements InitializingBean {
             return changeSetMethod.invoke(changeLogInstance);
         } else {
             throw new ArangobeeChangeSetException(
-                    "ChangeSet method " + changeSetMethod.getName() + " has wrong arguments list. Please see docs for more info!");
+                "ChangeSet method " + changeSetMethod.getName() + " has wrong arguments list. Please see docs for more info!");
         }
     }
 
@@ -199,7 +193,7 @@ public class Arangobee implements InitializingBean {
      * @return Arangobee object for fluent interface
      */
     public Arangobee setChangeLogsScanPackage(String changeLogsScanPackage) {
-        this.changeLogsScanPackage=changeLogsScanPackage;
+        this.changeLogsScanPackage = changeLogsScanPackage;
         return this;
     }
 
@@ -272,13 +266,13 @@ public class Arangobee implements InitializingBean {
      * @return Arangobee object for fluent interface
      */
     public Arangobee setSpringEnvironment(Environment environment) {
-        this.springEnvironment=environment;
+        this.springEnvironment = environment;
         return this;
     }
 
     /**
      * Overwrites a default Arangobee changelog collection hardcoded in DEFAULT_CHANGELOG_COLLECTION_NAME.
-     *
+     * <p>
      * CAUTION! Use this method carefully - when changing the name on a existing system,
      * your changelogs will be executed again on your ArangoDB instance
      *

@@ -9,7 +9,7 @@ import com.github.arangobee.changeset.ChangeSet;
  */
 @ChangeLog
 public class SpringDataChangelog {
-    @ChangeSet(author="abelski", id="spring_test4", order="04")
+    @ChangeSet(author = "abelski", id = "spring_test4", order = "04")
     public void testChangeSet(ArangoTemplate arangoTemplate) {
         System.out.println("invoked  with arangoTemplate=" + arangoTemplate.toString());
     }

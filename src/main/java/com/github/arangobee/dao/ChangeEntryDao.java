@@ -1,25 +1,24 @@
 package com.github.arangobee.dao;
 
-import java.util.Date;
-
-import com.arangodb.model.CollectionCreateOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.BaseDocument;
+import com.arangodb.model.CollectionCreateOptions;
 import com.github.arangobee.changeset.ChangeEntry;
 import com.github.arangobee.exception.ArangobeeConnectionException;
 import com.github.arangobee.exception.ArangobeeLockException;
 import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
 
 /**
  * @author Christophe Moine
  * @since 11/03/2019
  */
 public class ChangeEntryDao {
-    private static final Logger logger=LoggerFactory.getLogger("Arangobee dao");
+    private static final Logger logger = LoggerFactory.getLogger("Arangobee dao");
 
     private ArangoDatabase arangoDatabase;
     private ChangeEntryIndexDao indexDao;
@@ -32,14 +31,14 @@ public class ChangeEntryDao {
     private LockDao lockDao;
 
     public ChangeEntryDao(String changelogCollectionName, String lockCollectionName, boolean waitForLock, long changeLogLockWaitTime,
-            long changeLogLockPollRate, boolean throwExceptionIfCannotObtainLock) {
-        this.indexDao=new ChangeEntryIndexDao(changelogCollectionName);
-        this.lockDao=new LockDao(lockCollectionName);
-        this.changelogCollectionName=changelogCollectionName;
-        this.waitForLock=waitForLock;
-        this.changeLogLockWaitTime=changeLogLockWaitTime;
-        this.changeLogLockPollRate=changeLogLockPollRate;
-        this.throwExceptionIfCannotObtainLock=throwExceptionIfCannotObtainLock;
+                          long changeLogLockPollRate, boolean throwExceptionIfCannotObtainLock) {
+        this.indexDao = new ChangeEntryIndexDao(changelogCollectionName);
+        this.lockDao = new LockDao(lockCollectionName);
+        this.changelogCollectionName = changelogCollectionName;
+        this.waitForLock = waitForLock;
+        this.changeLogLockWaitTime = changeLogLockWaitTime;
+        this.changeLogLockPollRate = changeLogLockPollRate;
+        this.throwExceptionIfCannotObtainLock = throwExceptionIfCannotObtainLock;
     }
 
     public ArangoDatabase getArangoDatabase() {
@@ -47,7 +46,7 @@ public class ChangeEntryDao {
     }
 
     public ArangoDatabase connectDb(ArangoDatabase arangoDatabase) {
-        this.arangoDatabase=arangoDatabase;
+        this.arangoDatabase = arangoDatabase;
 
         ensureChangeLogCollectionIndex(arangoDatabase, changelogCollectionName);
         initializeLock();
@@ -59,16 +58,16 @@ public class ChangeEntryDao {
      *
      * @return true if successfully acquired, false otherwise
      * @throws ArangobeeConnectionException exception
-     * @throws ArangobeeLockException exception
+     * @throws ArangobeeLockException       exception
      */
     public String acquireProcessLock() throws ArangobeeConnectionException, ArangobeeLockException {
         verifyDbConnection();
-        String acquired=lockDao.acquireLock(getArangoDatabase());
+        String acquired = lockDao.acquireLock(getArangoDatabase());
 
         if (acquired == null && waitForLock) {
-            long timeToGiveUp=new Date().getTime() + (changeLogLockWaitTime * 1000 * 60);
+            long timeToGiveUp = new Date().getTime() + (changeLogLockWaitTime * 1000 * 60);
             while (acquired == null && new Date().getTime() < timeToGiveUp) {
-                acquired=lockDao.acquireLock(getArangoDatabase());
+                acquired = lockDao.acquireLock(getArangoDatabase());
                 if (acquired == null) {
                     logger.info("Waiting for changelog lock....");
                     try {
@@ -102,16 +101,16 @@ public class ChangeEntryDao {
         verifyDbConnection();
 
         return !getArangoDatabase().query(
-                "FOR t IN " + changelogCollectionName + " FILTER t." + ChangeEntry.KEY_CHANGEID + " == @" + ChangeEntry.KEY_CHANGEID + " && t."
-                        + ChangeEntry.KEY_AUTHOR + " == @" + ChangeEntry.KEY_AUTHOR + " RETURN t", BaseDocument.class,
-                ImmutableMap.<String, Object> of(ChangeEntry.KEY_CHANGEID, changeEntry.getChangeId(), ChangeEntry.KEY_AUTHOR, changeEntry.getAuthor()), null
-                ).hasNext();
+            "FOR t IN " + changelogCollectionName + " FILTER t." + ChangeEntry.KEY_CHANGEID + " == @" + ChangeEntry.KEY_CHANGEID + " && t."
+                + ChangeEntry.KEY_AUTHOR + " == @" + ChangeEntry.KEY_AUTHOR + " RETURN t", BaseDocument.class,
+            ImmutableMap.<String, Object>of(ChangeEntry.KEY_CHANGEID, changeEntry.getChangeId(), ChangeEntry.KEY_AUTHOR, changeEntry.getAuthor()), null
+        ).hasNext();
     }
 
     public void save(ChangeEntry changeEntry) throws ArangobeeConnectionException {
         verifyDbConnection();
 
-        ArangoCollection arangobeeLog=getArangoDatabase().collection(changelogCollectionName);
+        ArangoCollection arangobeeLog = getArangoDatabase().collection(changelogCollectionName);
         arangobeeLog.insertDocument(changeEntry.buildFullDBObject());
     }
 
@@ -141,16 +140,16 @@ public class ChangeEntryDao {
     }
 
     public void setIndexDao(ChangeEntryIndexDao changeEntryIndexDao) {
-        this.indexDao=changeEntryIndexDao;
+        this.indexDao = changeEntryIndexDao;
     }
 
     /* Visible for testing */
     void setLockDao(LockDao lockDao) {
-        this.lockDao=lockDao;
+        this.lockDao = lockDao;
     }
 
     public void setChangelogCollectionName(String changelogCollectionName) {
-        this.changelogCollectionName=changelogCollectionName;
+        this.changelogCollectionName = changelogCollectionName;
     }
 
     public void setLockCollectionName(String lockCollectionName) {
@@ -162,7 +161,7 @@ public class ChangeEntryDao {
     }
 
     public void setWaitForLock(boolean waitForLock) {
-        this.waitForLock=waitForLock;
+        this.waitForLock = waitForLock;
     }
 
     public long getChangeLogLockWaitTime() {
@@ -170,7 +169,7 @@ public class ChangeEntryDao {
     }
 
     public void setChangeLogLockWaitTime(long changeLogLockWaitTime) {
-        this.changeLogLockWaitTime=changeLogLockWaitTime;
+        this.changeLogLockWaitTime = changeLogLockWaitTime;
     }
 
     public long getChangeLogLockPollRate() {
@@ -178,7 +177,7 @@ public class ChangeEntryDao {
     }
 
     public void setChangeLogLockPollRate(long changeLogLockPollRate) {
-        this.changeLogLockPollRate=changeLogLockPollRate;
+        this.changeLogLockPollRate = changeLogLockPollRate;
     }
 
     public boolean isThrowExceptionIfCannotObtainLock() {
@@ -186,7 +185,7 @@ public class ChangeEntryDao {
     }
 
     public void setThrowExceptionIfCannotObtainLock(boolean throwExceptionIfCannotObtainLock) {
-        this.throwExceptionIfCannotObtainLock=throwExceptionIfCannotObtainLock;
+        this.throwExceptionIfCannotObtainLock = throwExceptionIfCannotObtainLock;
     }
 
 }
